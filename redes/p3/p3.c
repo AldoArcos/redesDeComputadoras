@@ -33,6 +33,21 @@ int cont = 0;
 
 const char *filenameDB = "/home/aldo/Desktop/redes/p3/db/DBp3";
 
+void imprimirEnArchivo() {
+    FILE *archivo;
+
+    archivo = fopen("scanner.txt", "a"); 
+
+    if (archivo == NULL) {
+        printf("No se pudo abrir el archivo.\n");
+        return;
+    }
+
+    fprintf(archivo, "%d.%d.%d.%d  %.2x:%.2x:%.2x:%.2x:%.2x:%.2x \n)", TPA[0], TPA[1], TPA[2], TPA[3], THA[0], THA[1], THA[2], THA[3], THA[4], THA[5]);
+
+    fclose(archivo); 
+}
+
 
 void insertData(sqlite3 *db)
 {
@@ -57,6 +72,8 @@ void imprimirTrama(unsigned char * paq, int len)
 
 void recibirTrama(int ds, unsigned char * trama, sqlite3 *db)
 {
+    FILE *archivo;
+    char cadena[] = "¡Hola, mundo!";
     int tam, flag = 0;
     struct timeval start, end;
     long mtime = 0, seconds, useconds;
@@ -81,6 +98,7 @@ void recibirTrama(int ds, unsigned char * trama, sqlite3 *db)
                 printf(" es: ");*/
                 imprimirTrama(THA, 6);
                 insertData(db);
+                imprimirEnArchivo();
                 flag = 1;
                 cont++;
             } 
@@ -94,7 +112,6 @@ void recibirTrama(int ds, unsigned char * trama, sqlite3 *db)
         }
     }
     printf("\nelapsed time: %ld milliseconds\n", mtime); 
-    
 }
 
 void enviarTrama(int ds, unsigned char *trama, int index)
@@ -247,7 +264,7 @@ int main()
         index = obtenerDatos(packet_socket);
         unsigned char lastByte;
         memcpy(TPA, IPOrigen, 3);
-        for(int i = 0 ; i < 25 ; i++)
+        for(int i = 0 ; i < 255 ; i++)
         {
             lastByte = (unsigned char) i;
             TPA[3] = lastByte;
